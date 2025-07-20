@@ -1,5 +1,6 @@
 pandas
 numpy
+flask
 scikit-learn
 tensorflow
 pillow
