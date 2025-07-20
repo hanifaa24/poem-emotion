@@ -4,21 +4,31 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
 import re
+import os
+import warnings
+warnings.filterwarnings("ignore")  # Untuk suppress warning dari pickle
 
 app = Flask(__name__)
 
 # Load model
-model = tf.keras.models.load_model("lstm_emosi_puisi.h5")
+model_path = "lstm_emosi_puisi.h5"
+tokenizer_path = "tokenizer.pkl"
+label_encoder_path = "label_encoder.pkl"
+
+if not os.path.exists(model_path) or not os.path.exists(tokenizer_path) or not os.path.exists(label_encoder_path):
+    raise RuntimeError("❌ File model/tokenizer/label_encoder tidak ditemukan!")
+
+model = tf.keras.models.load_model(model_path)
 
 # Load tokenizer
-with open("tokenizer.pkl", "rb") as f:
+with open(tokenizer_path, "rb") as f:
     tokenizer = pickle.load(f)
 
 # Load label encoder
-with open("label_encoder.pkl", "rb") as f:
+with open(label_encoder_path, "rb") as f:
     label_encoder = pickle.load(f)
 
-MAX_LEN = 100  # Sesuai pelatihan model
+MAX_LEN = 100  # Sesuai saat pelatihan model
 
 def clean_text(text):
     text = text.lower()
@@ -53,5 +63,6 @@ def predict():
     except Exception as e:
         return jsonify({"error": f"❌ Terjadi kesalahan pada server: {str(e)}"}), 500
 
+# Hanya untuk pengujian lokal
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5050, debug=True)
+    app.run(host="0.0.0.0", port=7860, debug=True)
