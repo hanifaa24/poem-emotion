@@ -54,4 +54,6 @@ def predict():
         return jsonify({"error": f"❌ Terjadi kesalahan pada server: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5050, debug=True)
+    import os
+    port = int(os.environ.get("PORT", 5000))  # Gunakan port dari Railway
+    app.run(host="0.0.0.0", port=port, debug=True)
