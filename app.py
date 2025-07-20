@@ -1,11 +1,9 @@
-from flask import Flask, request, jsonify
+import streamlit as st
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 import re
-
-app = Flask(__name__)
 
 # Load model
 model = tf.keras.models.load_model("lstm_emosi_puisi.h5")
@@ -18,7 +16,7 @@ with open("tokenizer.pkl", "rb") as f:
 with open("label_encoder.pkl", "rb") as f:
     label_encoder = pickle.load(f)
 
-MAX_LEN = 100  # Sesuai pelatihan model
+MAX_LEN = 100
 
 def clean_text(text):
     text = text.lower()
@@ -27,33 +25,21 @@ def clean_text(text):
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-@app.route("/predict", methods=["POST"])
-def predict():
-    try:
-        data = request.get_json()
+st.title("🎭 Deteksi Emosi Puisi")
 
-        if not data or "text" not in data:
-            return jsonify({"error": "❌ Harap sertakan field 'text' dalam JSON."}), 400
+text_input = st.text_area("Masukkan puisi di sini:")
 
-        input_text = clean_text(data["text"])
-        sequence = tokenizer.texts_to_sequences([input_text])
+if st.button("Prediksi Emosi"):
+    if text_input:
+        cleaned = clean_text(text_input)
+        sequence = tokenizer.texts_to_sequences([cleaned])
         padded = pad_sequences(sequence, maxlen=MAX_LEN, padding='post')
 
         prediction = model.predict(padded)
-        predicted_index = np.argmax(prediction)
-        predicted_label = label_encoder.inverse_transform([predicted_index])[0]
+        index = np.argmax(prediction)
+        label = label_encoder.inverse_transform([index])[0]
         confidence = float(np.max(prediction)) * 100
 
-        return jsonify({
-            "input_text": data["text"],
-            "predicted_emotion": predicted_label,
-            "confidence": f"{confidence:.2f}%"
-        })
-
-    except Exception as e:
-        return jsonify({"error": f"❌ Terjadi kesalahan pada server: {str(e)}"}), 500
-
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+        st.success(f"Emosi: {label} ({confidence:.2f}%)")
+    else:
+        st.warning("Teks puisi tidak boleh kosong.")
