@@ -1,5 +1,7 @@
-streamlit
-tensorflow==2.12.0
-scikit-learn
 pandas
 numpy
+scikit-learn
+tensorflow
+pillow
+numpy
+gdown
