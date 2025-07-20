@@ -1,5 +1,5 @@
-Flask
-tensorflow
+Flask==2.3.3
+tensorflow==2.13.0
 numpy
-scikit-learn
 gunicorn
+pickle5 
