@@ -5,5 +5,3 @@ scikit-learn
 tensorflow
 pillow
 numpy
-gdown
-gunicorn
